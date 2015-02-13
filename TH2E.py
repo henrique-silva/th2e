@@ -62,3 +62,6 @@ class TH2E():
             value = struct.unpack('>2BH', value)
             readings.append(float(value[2])/10)
         return readings
+
+    def reset(self):
+        self.Sensor.instruct(0xE3,[])
