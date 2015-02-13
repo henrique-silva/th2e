@@ -1,0 +1,4 @@
+#ignore compiled python libraries
+*.pyc
+#output example data
+*.txt
