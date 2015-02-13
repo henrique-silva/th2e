@@ -98,4 +98,4 @@ class Sensor():
             return True
 
     def instruct(self, inst, param, addr=universal_address):
-        self.query(instruction, parameters, True, address)
+        self.query(inst, param, True, addr)
