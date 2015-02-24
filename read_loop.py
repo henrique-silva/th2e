@@ -14,22 +14,25 @@ args = parser.parse_args()
 
 sensor = TH2E('10.0.18.210')
 abspath = os.path.abspath(args.output)
-if os.path.exists(abspath):
-    f = open(abspath, 'a')
+if os.path.isfile(abspath):
+    f = open(abspath+'/', 'a')
 else:
-    f = open(abspath, 'w')
+    f = open(abspath+'/th2e_readings.txt', 'w')
     f.write('Time\tTemperature\tHumidity\tDew Point\n')
 
 last_read_time = time.time()
-print('\tTemperature, Humidity and Dew point being monitored, press ctrl-c to stop...')
-
+print('\n\tThe following sensors are being monitored, press ctrl-c to stop...')
+print('Time\tTemperature\tHumidity\tDew Point')
 while True:
     temp, hum, dew = sensor.read_all()
     f.write(str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)+'\n')
+    sys.stdout.flush()
+    print('\r'+str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)),
     try:
         while time.time() - last_read_time < args.delay:
             sleep(1)
     except KeyboardInterrupt:
+        f.close()
         break
 
     last_read_time = time.time()
