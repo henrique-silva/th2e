@@ -1,11 +1,12 @@
 from spinel97 import Sensor
 import struct
+import socket
 
-sensor_code = { 
+sensor_code = {
     0x01 : "Temperature",
     0x02 : "Humidity",
     0x03 : "Dew Point",
-}
+    }
 
 ACK = {
     0x00 : "OK",
@@ -43,7 +44,7 @@ class TH2E():
         raw = [data[x:x+4] for x in range(0,len(data),4)]
         readings = []
         for value in raw[:-1]:
-            value = struct.unpack('>2BH', value)
+            value = struct.unpack('>2BH', ''.join(value))
             if sensor_code[value[0]] == "Humidity":
                 return (float(value[2])/10)
         raise ValueError("Humidity sensor couldn't be read, try again")
@@ -53,7 +54,7 @@ class TH2E():
         raw = [data[x:x+4] for x in range(0,len(data),4)]
         readings = []
         for value in raw[:-1]:
-            value = struct.unpack('>2BH', value)
+            value = struct.unpack('>2BH', ''.join(value))
             if sensor_code[value[0]] == "Dew Point":
                 return (float(value[2])/10)
         raise ValueError("Dew Point sensor couldn't be read, try again")
@@ -63,7 +64,7 @@ class TH2E():
         raw = [data[x:x+4] for x in range(0,len(data),4)]
         readings = []
         for value in raw[:-1]:
-            value = struct.unpack('>2BH', value)
+            value = struct.unpack('>2BH', ''.join(value))
             readings.append(float(value[2])/10)
         return readings
 
