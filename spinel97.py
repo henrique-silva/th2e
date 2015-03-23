@@ -5,10 +5,10 @@
 #   This class is a more generic version of pyspinel, which
 # interfaces with equipments that use the Spinel 97 protocol
 # created by Papouch
-
-from socket import *
+import socket
 from random import randint
 import struct
+from time import sleep
 
 #   Protocol Constants
 PRE = 0x2A    #Prefix is char '*' = 2Ah
@@ -18,22 +18,15 @@ broadcast_address = 0xFF
 universal_address = 0xFE
 
 class Sensor():
-    def __init__(self, ip, port=10001):
+    def __init__(self, ip, port=10001, timeout = 5):
         self.ip = ip
         self.port = port
-        self.socket = 0
-        
-    def disconnect(self):
-        self.socket.close()
-
-    def connect(self):
-        if self.socket:
-            self.disconnect()
-        self.socket = socket()
-        self.socket.connect((self.ip,self.port))
+        try:
+            self.socket = socket.create_connection((self.ip,self.port), timeout)
+        except socket.error:
+            raise
 
     def query(self, inst, param, receive=True, addr=universal_address):
-        self.connect()
         self.current_sig = randint(0,255)
         NUM = 5 + len(param)
         SUMA = 255 - (PRE + FRM + NUM + addr + self.current_sig + inst)
@@ -56,33 +49,39 @@ class Sensor():
         msg += struct.pack('2B', SUMA, CR)
 
         #Connect to device and send message
-        self.socket.send(msg)
-        
+        try:
+            self.socket.sendall(msg)
+        except socket.error:
+            raise
+
         if addr == broadcast_address or not receive: #broadcast address, no response should be received OR we don't want to receive anything
             return None
         else: #should get a response
-            adr, data = self.receive()
+            try:
+                adr, data = self.receive()
+            except socket.error:
+                raise
             if adr != addr and addr != universal_address:
                 raise ValueError("Wrong packet address ADR, expected " + str(address) + " , got " + str(adr))
             else:
                 return data
 
     def receive(self):
+        resp = []
         while True:
-            header = self.socket.recv(7)
-            header = struct.unpack('>2BH3B', header)
-            #Check message integrity
-            if not self.check_header(header):
-                continue
-            msg = self.socket.recv(header[2])
-            address = header[3]
-            self.disconnect()
-            return address, msg
+            resp += self.socket.recv(1024)
+            if resp[0] == '*' and resp[len(resp)-1] == chr(0x0d):
+                header = struct.unpack('>2BH3B', ''.join(resp[:7]))
+                if not self.check_header(header):
+                    raise Exception
+                return header[2], resp[7:]
+            else:
+                sleep(0.1)
 
     def check_header(self, header):
         pre, frm, num, address, sig, ack = header
         if pre != PRE:
-            print ("Wrong packet prefix PRE, expected " + str(PRE) + " got " + str(pre))
+            print ("Wrong prefix char PRE, expected " + str(PRE) + " got " + str(pre))
             return False
         elif frm != FRM:
             print ("Wrong packet format FRM, expected " + str(FRM) + " got " + str(frm))
