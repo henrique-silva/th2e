@@ -12,7 +12,7 @@ parser.add_argument('output', help='output file where the readings will be writt
 parser.add_argument('delay', type=float, help='time between the readings in seconds', default=10)
 args = parser.parse_args()
 
-sensor = TH2E('10.0.18.210')
+sensor = TH2E('10.2.117.254')
 abspath = os.path.abspath(args.output)
 if os.path.isfile(abspath):
     f = open(abspath+'/', 'a')
