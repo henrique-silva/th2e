@@ -22,14 +22,18 @@ ACK = {
 
 class TH2E():
     def __init__(self,ip,port=10001):
-        self.Sensor = Sensor(ip,port)
-        
+        try:
+            self.Sensor = Sensor(ip,port)
+        except socket.error as err:
+            print("Could not connect to the TH2E sensor, please verify the connection and try again")
+            raise err
+
     def read_temp(self):
         data = self.Sensor.query(0x51, [0x00])
         raw = [data[x:x+4] for x in range(0,len(data),4)]
         readings = []
         for value in raw[:-1]:
-            value = struct.unpack('>2BH', value)
+            value = struct.unpack('>2BH', ''.join(value))
             if sensor_code[value[0]] == "Temperature":
                 return (float(value[2])/10)
         raise ValueError("Temperature sensor couldn't be read, try again")
