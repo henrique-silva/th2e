@@ -8,19 +8,6 @@ sensor_code = {
     0x03 : "Dew Point",
     }
 
-ACK = {
-    0x00 : "OK",
-    0x01 : "Unknown error",
-    0x02 : "Invalid instruction",
-    0x03 : "Invalid instruction parameters",
-    0x04 : "Permission denied", #write error, too low data, channel disabled, other requirements not met
-    0x05 : "Device malfunction",
-    0x06 : "Data not available",
-    0x0d : "Digital input state change", #automatically sent message
-    0x0e : "Continuous measurement", #automatically sent, repeatedly sending measured data
-    0x0f : "Range overrun" #automatically sent
-    }
-
 class TH2E():
     def __init__(self,ip,port=10001):
         try:
