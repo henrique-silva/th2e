@@ -22,7 +22,11 @@ class Sensor():
         self.ip = ip
         self.port = port
         try:
-            self.socket = socket.create_connection((self.ip,self.port), timeout)
+            self.th2e_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.th2e_socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+            self.th2e_socket.settimeout(timeout)
+            self.th2e_socket.connect((self.ip,self.port))
+            #self.socket = socket.create_connection((self.ip,self.port), timeout)
         except socket.error:
             raise
 
@@ -50,7 +54,7 @@ class Sensor():
 
         #Connect to device and send message
         try:
-            self.socket.sendall(msg)
+            self.th2e_socket.sendall(msg)
         except socket.error:
             raise
 
