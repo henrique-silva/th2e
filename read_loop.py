@@ -25,18 +25,18 @@ last_read_time = time.time()
 print('\n\tThe following sensors are being monitored, press ctrl-c to stop...')
 print('Time\tTemperature\tHumidity\tDew Point')
 while True:
-    temp, hum, dew = sensor.read_all()
-    print('\r'+str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)),
-    with open(abspath+'/th2e_readings.txt', 'a') as f:
-        f.write(str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)+'\n')
-    sys.stdout.flush()
-    try:
-        while time.time() - last_read_time < args.delay:
-            sleep(1)
-    except KeyboardInterrupt:
-        f.close()
-        break
+    resp = sensor.read_all()
+    if len(read) == 3:
+        temp, hum, dew = resp
+        print('\r'+str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)),
+        with open(abspath+'/th2e_readings.txt', 'a') as f:
+            f.write(str(last_read_time)+'\t'+str(temp)+'\t'+str(hum)+'\t'+str(dew)+'\n')
+        sys.stdout.flush()
+        try:
+            while time.time() - last_read_time < args.delay:
+                sleep(1)
+        except KeyboardInterrupt:
+            f.close()
+            break
 
-    last_read_time = time.time()
-
-    
+        last_read_time = time.time()
