@@ -10,9 +10,10 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('output', help='output file where the readings will be written')
 parser.add_argument('delay', type=float, help='time between the readings in seconds', default=10)
+parser.add_argument('-i','--ip', help='set sensor ip', default='10.2.117.254')
 args = parser.parse_args()
 
-sensor = TH2E('10.2.117.254')
+sensor = TH2E(args.ip)
 abspath = os.path.abspath(args.output)
 if os.path.isfile(abspath):
     f = open(abspath+'/', 'a')
