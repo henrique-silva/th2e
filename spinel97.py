@@ -71,16 +71,13 @@ class Sensor():
                 return data
 
     def receive(self):
-        resp = []
-        while True:
-            resp += self.socket.recv(1024)
-            if resp[0] == '*' and resp[len(resp)-1] == chr(0x0d):
-                header = struct.unpack('>2BH3B', ''.join(resp[:7]))
-                if not self.check_header(header):
-                    raise Exception
-                return header[2], resp[7:]
-            else:
-                sleep(0.1)
+        resp = b""
+        while (resp[len(resp) - 1:] != chr(CR)):
+            resp += self.th2e_socket.recv(1024)
+        header = struct.unpack('>2BH3B', ''.join(resp[:7]))
+        if not self.check_header(header):
+            raise Exception
+        return header[2], resp[7:]
 
     def check_header(self, header):
         pre, frm, num, address, sig, ack = header
