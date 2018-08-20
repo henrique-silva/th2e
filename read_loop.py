@@ -16,16 +16,23 @@ args = parser.parse_args()
 
 sensor = TH2E(args.ip)
 abspath = os.path.abspath(args.output)
+if not os.path.exists(os.path.dirname(abspath)):
+    try:
+        os.makedirs(os.path.dirname(abspath))
+    except OSError as exc: # Guard against race condition
+        if exc.errno != errno.EEXIST:
+            raise
+
 if args.utc:
     time_fmt = 'UTC+0'
 else:
     time_fmt = 'UTC'+time.strftime('%Z', time.localtime(time.time()))
 
 if os.path.isfile(abspath):
-    f = open(abspath+'/', 'a')
+    f = open(abspath, 'a+')
 else:
-    f = open(abspath+'/th2e_readings.txt', 'w')
-    f.write('Time\tTemperature\tHumidity\tDew Point\n')
+    f = open(abspath, 'w')
+    f.write('Time [{}]\t\tTemperature\tHumidity\tDew Point\n'.format(time_fmt))
 
 print('\nThe following sensors are being monitored, press ctrl-c to stop...')
 print('Time [{}]\t\tTemperature\tHumidity\tDew Point\n'.format(time_fmt)),
