@@ -11,19 +11,25 @@ parser = argparse.ArgumentParser()
 parser.add_argument('output', help='output file where the readings will be written')
 parser.add_argument('delay', type=float, help='time between the readings in seconds', default=10)
 parser.add_argument('-i','--ip', help='set sensor ip', default='10.2.117.254')
+parser.add_argument('-u','--utc', help='Use UTC time as reference', action='store_true')
 args = parser.parse_args()
 
 sensor = TH2E(args.ip)
 abspath = os.path.abspath(args.output)
+if args.utc:
+    time_fmt = 'UTC+0'
+else:
+    time_fmt = 'UTC'+time.strftime('%Z', time.localtime(time.time()))
+
 if os.path.isfile(abspath):
     f = open(abspath+'/', 'a')
 else:
     f = open(abspath+'/th2e_readings.txt', 'w')
     f.write('Time\tTemperature\tHumidity\tDew Point\n')
 
-last_read_time = time.time()
-print('\n\tThe following sensors are being monitored, press ctrl-c to stop...')
-print('Time\tTemperature\tHumidity\tDew Point')
+print('\nThe following sensors are being monitored, press ctrl-c to stop...')
+print('Time [{}]\t\tTemperature\tHumidity\tDew Point\n'.format(time_fmt)),
+
 while True:
     resp = sensor.read_all()
     if len(read) == 3:
