@@ -56,10 +56,13 @@ class TH2E():
         data = self.Sensor.query(0x51, [0x00])
         raw = [data[x:x+4] for x in range(0,len(data),4)]
         readings = []
-        for value in raw[:-1]:
-            value = struct.unpack('>2BH', ''.join(value))
-            readings.append(float(value[2])/10)
-        return readings
+        try:
+            readings.append(self.read_temp())
+            readings.append(self.read_hum())
+            readings.append(self.read_dew())
+            return readings
+        except:
+            raise
 
     def reset(self):
         self.Sensor.instruct(0xE3,[])
