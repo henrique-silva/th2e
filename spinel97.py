@@ -90,10 +90,14 @@ class Sensor():
         resp = b""
         while (resp[len(resp) - 1:] != chr(CR)):
             resp += self.th2e_socket.recv(1024)
-        header = struct.unpack('>2BH3B', ''.join(resp[:7]))
-        if not self.check_header(header):
-            raise Exception
-        return header[2], resp[7:]
+
+        if len(resp) >= 7:
+            header = struct.unpack('>2BH3B', ''.join(resp[:7]))
+            if not self.check_header(header):
+                raise Exception
+            return header[2], resp[7:]
+        else:
+            raise ValueError('Error on received data. Expected 7 bytes msg, received ' +str(len(resp)))
 
     def check_header(self, header):
         pre, frm, num, address, sig, ack = header
