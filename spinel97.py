@@ -94,7 +94,7 @@ class Sensor():
         if len(resp) >= 7:
             header = struct.unpack('>2BH3B', ''.join(resp[:7]))
             if not self.check_header(header):
-                raise Exception
+                raise ValueError('Error on header check')
             return header[2], resp[7:]
         else:
             raise ValueError('Error on received data. Expected 7 bytes msg, received ' +str(len(resp)))
