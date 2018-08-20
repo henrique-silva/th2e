@@ -57,3 +57,6 @@ class TH2E():
 
     def reset(self):
         self.Sensor.instruct(0xE3,[])
+
+    def close(self):
+        self.Sensor.close()
